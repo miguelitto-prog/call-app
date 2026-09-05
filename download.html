@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sinal — chamadas de vídeo direto entre vocês</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --bg-0:#0f0f0d;
+    --bg-1:#171713;
+    --bg-2:#1e1e19;
+    --line:#2c2b23;
+    --text-0:#f4f1e8;
+    --text-1:#a8a595;
+    --text-2:#68665a;
+    --amber:#f0a83c;
+    --signal:#4fe0c4;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:var(--bg-0);color:var(--text-0);font-family:'Inter',sans-serif;
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  }
+
+  header{
+    width:100%;max-width:960px;padding:22px 24px;display:flex;
+    align-items:center;justify-content:space-between;
+  }
+  .logo{font-family:'Space Grotesk';font-weight:700;font-size:18px;}
+  .logo .dot{color:var(--amber);}
+
+  main{width:100%;max-width:720px;padding:40px 24px 80px;text-align:center;}
+
+  .badge{
+    display:inline-block;font-size:12px;color:var(--signal);background:#163330;
+    padding:5px 12px;border-radius:20px;margin-bottom:22px;
+  }
+
+  h1{
+    font-family:'Space Grotesk';font-weight:700;font-size:42px;line-height:1.15;
+    margin:0 0 14px;
+  }
+  h1 .amber{color:var(--amber);}
+
+  .subtitle{color:var(--text-1);font-size:16px;line-height:1.6;max-width:520px;margin:0 auto 34px;}
+
+  .download-btn{
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--amber);color:#1a1305;font-weight:600;font-size:15px;
+    padding:15px 28px;border-radius:14px;text-decoration:none;
+    transition:transform .15s ease;
+  }
+  .download-btn:hover{transform:translateY(-2px);}
+  .download-note{margin-top:12px;font-size:12.5px;color:var(--text-2);}
+
+  .features{
+    display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    gap:14px;margin-top:64px;text-align:left;
+  }
+  .feature{
+    border:1px solid var(--line);border-radius:14px;padding:18px;
+    background:radial-gradient(120% 140% at 30% 20%, #1a1811 0%, #151310 60%);
+  }
+  .feature h3{font-size:14px;margin:0 0 6px;font-family:'Space Grotesk';}
+  .feature p{font-size:13px;color:var(--text-1);margin:0;line-height:1.5;}
+
+  footer{color:var(--text-2);font-size:12px;padding:24px;text-align:center;}
+  footer a{color:var(--text-1);}
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">Sinal<span class="dot">.</span></div>
+  </header>
+
+  <main>
+    <span class="badge">Gratuito · Windows</span>
+    <h1>Chame seus amigos<br><span class="amber">sem passar por servidor nenhum</span></h1>
+    <p class="subtitle">
+      Vídeo, voz e compartilhamento de tela em chamadas de grupo, direto entre
+      os computadores de vocês. Baixe, instale e chame o pessoal.
+    </p>
+
+    <!-- TODO: troque esse link pelo endereço real da sua Release no GitHub,
+         algo como:
+         https://github.com/SEU-USUARIO/sinal-app/releases/latest/download/Sinal-Setup.exe -->
+    <a class="download-btn" href="#" download>
+      ⬇ Baixar pra Windows
+    </a>
+    <div class="download-note">Versão 0.1.0 · instalador .exe</div>
+
+    <div class="features">
+      <div class="feature">
+        <h3>Chamada em grupo</h3>
+        <p>Vídeo e voz com vários amigos ao mesmo tempo, não só em dupla.</p>
+      </div>
+      <div class="feature">
+        <h3>Compartilhar tela</h3>
+        <p>Mostra a tela pro grupo com um clique, sem gravar nem passar por nuvem nenhuma.</p>
+      </div>
+      <div class="feature">
+        <h3>Conexão direta</h3>
+        <p>O vídeo viaja direto entre os PCs (WebRTC) — o servidor só ajuda a turma a se encontrar.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    Feito por Miguel · <a href="#">código no GitHub</a>
+  </footer>
+
+</body>
+</html>

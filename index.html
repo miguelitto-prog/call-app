@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Sinal</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-title">Sinal <span class="sub">· MVP local</span></div>
+    <div id="status" class="status-pill">Iniciando…</div>
+  </div>
+
+  <div class="main-area">
+    <!-- Os tiles de vídeo (um por participante) são criados e removidos
+         dinamicamente pelo renderer.js conforme as pessoas entram/saem da
+         chamada — não tem mais um "local" e "remote" fixos. -->
+    <div class="video-grid" id="video-grid"></div>
+
+    <div class="controls-row">
+      <button id="call-btn" class="ctrl-btn primary">Entrar na chamada</button>
+      <button id="camera-btn" class="ctrl-btn">Ligar câmera</button>
+      <button id="share-btn" class="ctrl-btn">Compartilhar tela</button>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
