@@ -124,10 +124,11 @@ wss.on('connection', (socket) => {
         return send(socket, { type: 'auth-error', message: 'Esse nome de usuário já existe.' });
       }
       const salt = randomBytes(16).toString('hex');
-      const info = db
-        .prepare('INSERT INTO users (username, salt, password_hash, created_at) VALUES (?, ?, ?, ?)')
+      db.prepare('INSERT INTO users (username, salt, password_hash, created_at) VALUES (?, ?, ?, ?)')
         .run(username, salt, hashPassword(password, salt), new Date().toISOString());
-      startSession(info.lastInsertRowid, username);
+      // Não loga automaticamente — o cliente mostra a notificação e volta
+      // pra aba "Entrar" pra confirmar a senha.
+      send(socket, { type: 'register-ok', username });
       return;
     }
 
