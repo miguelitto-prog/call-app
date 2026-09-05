@@ -1,0 +1,15 @@
+{
+  "name": "sinal-server",
+  "version": "0.1.0",
+  "description": "Servidor de sinalização (contas, canais e WebRTC) do app Sinal",
+  "main": "signaling-server.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node signaling-server.js"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}
