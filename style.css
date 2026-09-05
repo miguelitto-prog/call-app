@@ -1,15 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap');
 
 :root{
   --bg-0:#0f0f0d;
   --bg-1:#171713;
   --bg-2:#1e1e19;
+  --bg-rail:#121210;
+  --bg-glass:rgba(23,23,19,.72);
   --line:#2c2b23;
+  --line-soft:#211f19;
   --text-0:#f4f1e8;
   --text-1:#a8a595;
   --text-2:#68665a;
   --amber:#f0a83c;
+  --amber-dim:#3a2c14;
   --signal:#4fe0c4;
+  --signal-dim:#163330;
+  --danger:#d9502f;
 }
 
 *{box-sizing:border-box;}
@@ -19,26 +25,108 @@ body{
   color:var(--text-0);
   font-family:'Inter',sans-serif;
   display:flex;
-  flex-direction:column;
   overflow:hidden;
+}
+.mono{font-family:'JetBrains Mono',monospace;}
+
+/* ---------- Barra de servidores (decorativa) ---------- */
+.rail{
+  width:70px;background:var(--bg-rail);
+  display:flex;flex-direction:column;align-items:center;
+  padding:16px 0;gap:10px;flex-shrink:0;
+  border-right:1px solid var(--line-soft);
+}
+.rail-item{
+  width:44px;height:44px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;flex-shrink:0;
+  transition:border-radius .18s ease;
+  overflow:hidden;
+  background:var(--bg-2);
+  font-family:'Space Grotesk';font-weight:600;font-size:12.5px;color:var(--text-1);
+}
+.rail-item.active{border-radius:13px;color:var(--text-0);}
+.rail-item.active::before{
+  content:'';position:absolute;left:-16px;top:50%;transform:translateY(-50%);
+  width:4px;height:26px;border-radius:0 4px 4px 0;background:var(--text-0);
+}
+.rail-item.brand{
+  background:linear-gradient(150deg,var(--amber),#c97a1a);
+}
+.rail-item.brand svg{width:20px;height:20px;}
+.rail-sep{width:28px;height:1px;background:var(--line-soft);margin:2px 0;}
+.rail-add{
+  width:44px;height:44px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bg-2);color:var(--text-1);font-size:20px;
+  flex-shrink:0;
+}
+
+/* ---------- Coluna lateral ---------- */
+.sidebar{
+  width:236px;background:var(--bg-1);border-right:1px solid var(--line-soft);
+  display:flex;flex-direction:column;padding:18px 12px;flex-shrink:0;
+}
+
+.server-title{
+  font-family:'Space Grotesk';font-weight:600;font-size:14.5px;
+  padding:2px 8px 18px 8px;border-bottom:1px solid var(--line-soft);margin-bottom:14px;
+}
+.server-title .sub{font-family:'Inter';font-weight:400;font-size:12px;color:var(--text-2);}
+
+.nav-label{font-size:10.5px;color:var(--text-2);padding:8px 10px 7px 10px;letter-spacing:.3px;}
+
+.voice-members{
+  display:flex;flex-direction:column;gap:9px;padding:2px 9px 12px 9px;
+}
+.vm{display:flex;align-items:center;gap:8px;}
+.avatar{
+  width:24px;height:24px;border-radius:8px;
+  background:var(--bg-2);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:600;color:var(--text-1);position:relative;flex-shrink:0;
+}
+.avatar.big{width:33px;height:33px;font-size:12.5px;border-radius:10px;}
+.avatar.on::after{
+  content:'';position:absolute;bottom:-2px;right:-2px;width:8px;height:8px;border-radius:50%;
+  background:var(--signal);border:2px solid var(--bg-1);
+}
+.vm-name{font-size:12px;color:var(--text-1);}
+.vm .mic-icon{width:11px;height:11px;color:var(--text-2);flex-shrink:0;}
+.vm.muted .mic-icon{color:var(--amber);}
+.vm.speaking .avatar{box-shadow:0 0 0 2px var(--signal);}
+.vm.speaking .vm-name{color:var(--signal);}
+
+.sidebar-bottom{
+  margin-top:auto;display:flex;align-items:center;gap:10px;
+  padding:11px 9px;border-top:1px solid var(--line-soft);
+}
+.me-status{font-size:10.5px;color:var(--signal);}
+
+/* ---------- Palco principal ---------- */
+.stage{
+  flex:1;display:flex;flex-direction:column;position:relative;
+  background:radial-gradient(60% 50% at 80% -10%, rgba(240,168,60,.05), transparent 60%), var(--bg-0);
+  min-width:0;
 }
 
 .topbar{
   height:54px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
-  padding:0 22px;border-bottom:1px solid var(--line);background:var(--bg-1);
+  padding:0 22px;border-bottom:1px solid var(--line-soft);
 }
-.topbar-title{font-family:'Space Grotesk';font-weight:600;font-size:14.5px;}
+.topbar-title{font-family:'Space Grotesk';font-weight:600;font-size:14.5px;display:flex;align-items:center;gap:8px;}
 .topbar-title .sub{font-family:'Inter';font-weight:400;font-size:12px;color:var(--text-2);}
-
-.status-pill{
-  font-size:11.5px;color:var(--signal);background:#163330;
-  padding:5px 11px;border-radius:20px;
+.sharing-pill{
+  display:flex;align-items:center;gap:7px;background:var(--amber-dim);color:var(--amber);
+  padding:5px 11px 5px 9px;border-radius:20px;font-size:11.5px;font-weight:500;
 }
+.sharing-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;}
 
-.main-area{flex:1;padding:22px;display:flex;flex-direction:column;min-height:0;}
+.main-area{flex:1;padding:22px;display:flex;flex-direction:column;min-height:0;position:relative;}
 
 /* Grid flexível: acomoda de 1 a N participantes, reorganizando sozinho
-   conforme gente entra ou sai da chamada (em vez do 2fr/1fr fixo de antes). */
+   conforme gente entra ou sai da chamada. Quem está compartilhando a tela
+   ganha mais espaço (classe .sharing), como um "spotlight". */
 .video-grid{
   flex:1;display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
   grid-auto-rows:minmax(160px, 1fr);gap:14px;min-height:0;align-content:stretch;
@@ -47,21 +135,49 @@ body{
   border-radius:16px;overflow:hidden;position:relative;
   background:radial-gradient(120% 140% at 30% 20%, #221f16 0%, #191712 60%);
   border:1px solid var(--line);
+  transition:border-color .2s ease, box-shadow .2s ease;
+  display:flex;align-items:center;justify-content:center;
 }
-.video-card video{width:100%;height:100%;object-fit:cover;background:#0a0d0c;}
+.video-card.sharing{grid-column:span 2;grid-row:span 2;}
+.video-card.speaking{border-color:var(--signal);box-shadow:0 0 0 1px var(--signal-dim), 0 0 26px -10px rgba(79,224,196,.5);}
+.video-card video{width:100%;height:100%;object-fit:cover;background:transparent;}
+.video-card video.empty{display:none;}
+.video-card .avatar{
+  width:64px;height:64px;border-radius:20px;font-size:22px;
+}
 .video-label{
-  position:absolute;left:12px;bottom:12px;
+  position:absolute;left:12px;bottom:12px;display:flex;align-items:center;gap:6px;
   background:rgba(15,15,13,.6);backdrop-filter:blur(6px);
   padding:5px 10px;border-radius:9px;font-size:12px;color:var(--text-0);
 }
+.video-label .mic-icon{width:12px;height:12px;color:var(--text-1);}
+.video-card.muted .video-label .mic-icon{color:var(--amber);}
 
+/* ---------- Antes de entrar na chamada ---------- */
+.pre-join{
+  position:absolute;inset:22px;display:flex;align-items:center;justify-content:center;
+}
+.join-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--amber);color:#1a1305;font-weight:600;font-size:15px;
+  padding:15px 28px;border-radius:14px;border:none;cursor:pointer;
+  transition:transform .15s ease;
+}
+.join-btn:hover{transform:translateY(-2px);}
+.join-btn:disabled{opacity:.6;cursor:default;transform:none;}
+
+/* ---------- Barra de controles flutuante ---------- */
 .controls-row{
-  margin:18px auto 4px auto;display:flex;gap:10px;
+  margin:14px auto 4px auto;display:flex;align-items:center;gap:9px;
+  padding:9px;background:var(--bg-glass);backdrop-filter:blur(10px);
+  border:1px solid var(--line);border-radius:16px;
 }
 .ctrl-btn{
-  padding:11px 20px;border-radius:12px;border:none;
-  background:var(--bg-2);color:var(--text-0);font-size:13.5px;font-weight:500;
-  cursor:pointer;transition:transform .15s ease, background .15s ease;
+  width:40px;height:40px;border-radius:11px;background:var(--bg-2);border:none;color:var(--text-0);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:transform .15s ease, background .15s ease, color .15s ease;
 }
 .ctrl-btn:hover{transform:translateY(-2px);background:#28261e;}
-.ctrl-btn.primary{background:var(--amber);color:#1a1305;}
+.ctrl-btn.active{background:var(--amber);color:#1a1305;}
+.ctrl-btn.muted{background:var(--danger);color:#1c0c06;}
+.ctrl-btn svg{width:17px;height:17px;}
