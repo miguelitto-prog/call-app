@@ -2,7 +2,7 @@
 // estático). Antes esse endereço vinha do config.json lido pelo Electron;
 // agora é só editar aqui.
 window.SINAL_CONFIG = {
-  signalingUrl: 'ws://localhost:8080',
+  signalingUrl: 'ws://call-app-1-ulv1.onrender.com',
   // Troque pelo endereço real do seu servidor quando for hospedá-lo, ex:
   // signalingUrl: 'wss://sinal-server.onrender.com',
 
