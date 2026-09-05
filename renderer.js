@@ -98,6 +98,20 @@ function setStatus(text) {
   statusEl.textContent = text;
 }
 
+// ---- Notificação simples (toast) ----
+const toastEl = document.getElementById('toast');
+let toastTimer = null;
+function showToast(message) {
+  toastEl.textContent = message;
+  toastEl.hidden = false;
+  requestAnimationFrame(() => toastEl.classList.add('show'));
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toastEl.classList.remove('show');
+    setTimeout(() => { toastEl.hidden = true; }, 220);
+  }, 3200);
+}
+
 function send(message) {
   if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(message));
 }
@@ -109,13 +123,15 @@ function sendSignal(targetId, payload) {
 // ---- Autenticação ----
 let authMode = 'login';
 
+function setAuthMode(mode) {
+  authMode = mode;
+  authTabs.forEach((t) => t.classList.toggle('active', t.dataset.mode === mode));
+  authSubmitBtn.textContent = mode === 'login' ? 'Entrar' : 'Criar conta';
+  authErrorEl.hidden = true;
+}
+
 authTabs.forEach((tab) => {
-  tab.addEventListener('click', () => {
-    authMode = tab.dataset.mode;
-    authTabs.forEach((t) => t.classList.toggle('active', t === tab));
-    authSubmitBtn.textContent = authMode === 'login' ? 'Entrar' : 'Criar conta';
-    authErrorEl.hidden = true;
-  });
+  tab.addEventListener('click', () => setAuthMode(tab.dataset.mode));
 });
 
 authForm.addEventListener('submit', (e) => {
@@ -661,6 +677,12 @@ function connectSignaling() {
 
     if (msg.type === 'auth-ok') {
       onAuthenticated(msg);
+    } else if (msg.type === 'register-ok') {
+      showToast(`Conta "${msg.username}" criada! Agora é só entrar.`);
+      setAuthMode('login');
+      authUsernameInput.value = msg.username;
+      authPasswordInput.value = '';
+      authPasswordInput.focus();
     } else if (msg.type === 'auth-error') {
       if (appEl.hidden) {
         localStorage.removeItem('sinal_token');
@@ -710,8 +732,11 @@ function connectSignaling() {
 }
 
 async function init() {
-  const config = await window.sinal.getConfig();
-  SIGNALING_URL = config.signalingUrl;
+  // Antes isso vinha do config.json via window.sinal.getConfig(), que só
+  // existe dentro do Electron. Rodando num navegador comum (Vercel), a
+  // configuração vem do config.js, carregado antes deste arquivo.
+  const config = window.SINAL_CONFIG || {};
+  SIGNALING_URL = config.signalingUrl || SIGNALING_URL;
   if (config.turnServer) rtcConfig.iceServers.push(config.turnServer);
   connectSignaling();
 }
