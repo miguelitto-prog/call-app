@@ -2,6 +2,8 @@
 let SIGNALING_URL = 'ws://localhost:8080';
 
 let ws;
+let heartbeatInterval = null;
+let reconnectTimer = null;
 let myId = null; // id de conexão (muda a cada login/reconexão)
 let myUsername = null;
 
@@ -113,7 +115,11 @@ function showToast(message) {
 }
 
 function send(message) {
-  if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(message));
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify(message));
+    return true;
+  }
+  return false;
 }
 
 function sendSignal(targetId, payload) {
@@ -137,7 +143,10 @@ authTabs.forEach((tab) => {
 authForm.addEventListener('submit', (e) => {
   e.preventDefault();
   authErrorEl.hidden = true;
-  send({ type: authMode, username: authUsernameInput.value.trim(), password: authPasswordInput.value });
+  const ok = send({ type: authMode, username: authUsernameInput.value.trim(), password: authPasswordInput.value });
+  if (!ok) {
+    showAuthError('Sem conexão com o servidor agora. Aguarde reconectar (veja o status embaixo) e tente de novo.');
+  }
 });
 
 logoutBtn.addEventListener('click', () => {
@@ -660,15 +669,22 @@ shareBtn.addEventListener('click', toggleShare);
 
 // ---- Conexão com o servidor ----
 function connectSignaling() {
+  clearTimeout(reconnectTimer);
   ws = new WebSocket(SIGNALING_URL);
 
   ws.onopen = () => {
+    clearInterval(heartbeatInterval);
+    // Alguns provedores (Render incluso) derrubam WebSocket parado por muito
+    // tempo sem tráfego. Esse ping periódico evita cair no meio de uma
+    // pausa (ex: entre criar a conta e digitar a senha pra entrar).
+    heartbeatInterval = setInterval(() => send({ type: 'ping' }), 25000);
+
     const token = localStorage.getItem('sinal_token');
     if (token) {
       setStatus('entrando…');
       send({ type: 'resume', token });
     } else {
-      setStatus('desconectado');
+      setStatus('conectado');
     }
   };
 
@@ -728,7 +744,14 @@ function connectSignaling() {
   };
 
   ws.onerror = () => setStatus('erro de conexão');
-  ws.onclose = () => setStatus('desconectado');
+  ws.onclose = () => {
+    clearInterval(heartbeatInterval);
+    setStatus('desconectado — reconectando…');
+    // Tenta reconectar sozinho depois de uma queda (idle timeout do
+    // provedor, instabilidade de rede, etc.) em vez de deixar travado até
+    // a pessoa dar F5.
+    reconnectTimer = setTimeout(connectSignaling, 2000);
+  };
 }
 
 async function init() {
