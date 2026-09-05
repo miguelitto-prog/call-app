@@ -30,6 +30,15 @@ body{
 .mono{font-family:'JetBrains Mono',monospace;}
 button{font-family:inherit;}
 
+/* ---------- Notificação (toast) ---------- */
+.toast{
+  position:fixed;top:22px;left:50%;transform:translateX(-50%) translateY(-12px);
+  background:var(--signal-dim);color:var(--signal);border:1px solid rgba(79,224,196,.3);
+  padding:10px 18px;border-radius:12px;font-size:13px;font-weight:500;
+  opacity:0;pointer-events:none;transition:opacity .2s ease, transform .2s ease;z-index:100;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
 /* ---------- Tela de login / criar conta ---------- */
 .auth-screen{
   height:100vh;display:flex;align-items:center;justify-content:center;
