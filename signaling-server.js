@@ -20,7 +20,10 @@ const path = require('path');
 const { DatabaseSync } = require('node:sqlite');
 
 const PORT = process.env.PORT || 8080;
-const DB_PATH = path.join(__dirname, 'sinal.db');
+// Se você adicionar um disco persistente no Render (recomendado — sem ele o
+// banco reseta a cada deploy), aponte a variável de ambiente DB_PATH pro
+// caminho montado, ex: /var/data/sinal.db
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'sinal.db');
 
 const db = new DatabaseSync(DB_PATH);
 db.exec(`
