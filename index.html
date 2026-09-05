@@ -7,65 +7,114 @@
 </head>
 <body>
 
-  <!-- Barra de servidores — decorativa por enquanto, o app só tem uma sala.
-       Fica pronta pra virar navegação de verdade se um dia existir mais de
-       uma sala. -->
-  <div class="rail">
-    <div class="rail-item brand" title="Sinal">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M4 15c2-6 6-9 8-9s6 3 8 9" stroke="#1a1305" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="17" r="1.6" fill="#1a1305"/></svg>
-    </div>
-    <div class="rail-sep"></div>
-    <div class="rail-item active" title="Sala local">SL</div>
-    <div class="rail-add" title="Mais salas em breve">+</div>
-  </div>
-
-  <!-- Coluna lateral — decorativa, mas a lista "NA CHAMADA" é real e
-       espelha exatamente quem está na chamada no momento (renderer.js
-       mantém isso sincronizado). -->
-  <div class="sidebar">
-    <div class="server-title">Sinal <span class="sub">· sala local</span></div>
-
-    <div class="nav-label">NA CHAMADA</div>
-    <div class="voice-members" id="voice-members">
-      <!-- preenchido dinamicamente pelo renderer.js -->
-    </div>
-
-    <div class="sidebar-bottom">
-      <div class="avatar big" id="self-avatar">VC</div>
-      <div>
-        <div class="vm-name" style="color:var(--text-0);font-size:13px;">Você</div>
-        <div class="me-status mono" id="status">iniciando…</div>
+  <!-- Tela de entrar / criar conta. Fica visível até autenticar. -->
+  <div class="auth-screen" id="auth-screen">
+    <div class="auth-card">
+      <div class="auth-logo">Sinal<span class="dot">.</span></div>
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" data-mode="login">Entrar</button>
+        <button type="button" class="auth-tab" data-mode="register">Criar conta</button>
       </div>
+      <form id="auth-form">
+        <input id="auth-username" type="text" placeholder="Usuário" autocomplete="username" minlength="3" required>
+        <input id="auth-password" type="password" placeholder="Senha" autocomplete="current-password" minlength="6" required>
+        <button type="submit" class="auth-submit" id="auth-submit">Entrar</button>
+      </form>
+      <div class="auth-error" id="auth-error" hidden></div>
     </div>
   </div>
 
-  <div class="stage">
-    <div class="topbar">
-      <div class="topbar-title">Sala local <span class="sub" id="participant-count"></span></div>
-      <div class="sharing-pill" id="sharing-pill" hidden><span class="sharing-dot"></span><span id="sharing-text"></span></div>
+  <!-- App principal — só aparece depois de autenticar. -->
+  <div class="app" id="app" hidden>
+
+    <div class="rail">
+      <div class="rail-item brand" title="Sinal">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 15c2-6 6-9 8-9s6 3 8 9" stroke="#1a1305" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="17" r="1.6" fill="#1a1305"/></svg>
+      </div>
+      <div class="rail-sep"></div>
+      <div class="rail-item active" title="Sala local">SL</div>
     </div>
 
-    <div class="main-area">
-      <!-- Os tiles de vídeo (um por participante) são criados e removidos
-           dinamicamente pelo renderer.js conforme as pessoas entram/saem da
-           chamada — não tem mais um "local" e "remote" fixos. -->
-      <div class="video-grid" id="video-grid"></div>
+    <div class="sidebar">
+      <div class="server-title">Sinal <span class="sub">· sala local</span></div>
 
-      <div class="pre-join" id="pre-join">
-        <button id="call-btn" class="join-btn">Entrar na chamada</button>
+      <div class="nav-label">TEXTO <button type="button" class="add-channel-btn" data-kind="texto" title="Criar canal de texto">+</button></div>
+      <div class="channel-list" id="text-channels"></div>
+
+      <div class="nav-label">VOZ <button type="button" class="add-channel-btn" data-kind="voz" title="Criar canal de voz">+</button></div>
+      <div class="channel-list" id="voice-channels"></div>
+
+      <div class="in-call-banner" id="in-call-banner" hidden>
+        <span id="in-call-text"></span>
+        <button type="button" id="in-call-leave">Sair</button>
       </div>
 
+      <div class="sidebar-bottom">
+        <div class="avatar big" id="self-avatar">?</div>
+        <div class="sidebar-me">
+          <div class="vm-name" id="self-username" style="color:var(--text-0);font-size:13px;"></div>
+          <div class="me-status mono" id="status">conectando…</div>
+        </div>
+        <button type="button" class="logout-btn" id="logout-btn" title="Sair da conta">⏻</button>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="topbar">
+        <div class="topbar-title" id="channel-title"><span id="channel-title-text">Selecione um canal</span><span class="sub" id="participant-count"></span></div>
+        <div class="sharing-pill" id="sharing-pill" hidden><span class="sharing-dot"></span><span id="sharing-text"></span></div>
+      </div>
+
+      <div class="main-area">
+
+        <!-- Canal de voz: grid de vídeo dos participantes, ou botão de entrar -->
+        <div class="voice-view" id="voice-view" hidden>
+          <!-- Os tiles de vídeo (um por participante) são criados e removidos
+               dinamicamente pelo renderer.js conforme as pessoas entram/saem
+               da chamada. -->
+          <div class="video-grid" id="video-grid"></div>
+          <div class="pre-join" id="pre-join">
+            <button type="button" id="call-btn" class="join-btn">Entrar na chamada</button>
+          </div>
+        </div>
+
+        <!-- Canal de texto: histórico de mensagens + campo pra escrever -->
+        <div class="text-view" id="text-view" hidden>
+          <div class="messages" id="messages"></div>
+          <form id="message-form" class="message-form">
+            <input id="message-input" type="text" placeholder="Mandar mensagem…" autocomplete="off">
+            <button type="submit">Enviar</button>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- Barra de controles da chamada — só aparece quando você está de
+           fato conectado ao canal de voz selecionado. -->
       <div class="controls-row" id="controls-row" hidden>
-        <button id="mic-btn" class="ctrl-btn" title="Mudo">
+        <button type="button" id="mic-btn" class="ctrl-btn" title="Mudo">
           <svg viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 003-3V6a3 3 0 10-6 0v6a3 3 0 003 3z" stroke="currentColor" stroke-width="1.8"/><path d="M6 11a6 6 0 0012 0M12 19v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         </button>
-        <button id="camera-btn" class="ctrl-btn" title="Câmera">
+        <button type="button" id="camera-btn" class="ctrl-btn" title="Câmera">
           <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="6" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M18 10l4-2.4v9.8l-4-2.4" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
         </button>
-        <button id="share-btn" class="ctrl-btn" title="Compartilhar tela">
-          <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="12" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M9 21h6M12 17v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <div class="share-group">
+          <button type="button" id="share-btn" class="ctrl-btn" title="Compartilhar tela">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="12" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M9 21h6M12 17v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+          <select id="share-quality" class="quality-select" title="Qualidade do compartilhamento de tela">
+            <option value="480p15">480p · 15fps</option>
+            <option value="720p30" selected>720p · 30fps</option>
+            <option value="1080p30">1080p · 30fps</option>
+            <option value="1080p60">1080p · 60fps</option>
+            <option value="native">Original da tela</option>
+          </select>
+        </div>
+        <button type="button" id="leave-btn" class="ctrl-btn end" title="Sair da chamada">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 14c4-4 12-4 16 0l-1.4 3.2a1.6 1.6 0 01-2 .8l-2-.8a1.6 1.6 0 01-1-1.5v-1a10 10 0 00-5.2 0v1a1.6 1.6 0 01-1 1.5l-2 .8a1.6 1.6 0 01-2-.8L4 14z" fill="currentColor"/></svg>
         </button>
       </div>
+
     </div>
   </div>
 
