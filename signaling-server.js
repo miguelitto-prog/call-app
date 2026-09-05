@@ -4,6 +4,11 @@
 // broadcast simples pros outros dois. Áudio/vídeo continuam indo direto entre
 // os PCs via WebRTC — esse servidor só ajuda todo mundo a se encontrar.
 //
+// Mensagens do tipo 'state' (mudo / compartilhando tela / câmera ligada) são
+// a exceção: elas vão pra todo mundo na sala, não só pro "target", porque
+// servem pra manter a lista de participantes e o aviso de tela compartilhada
+// sincronizados pra todo mundo.
+//
 // Rode com: npm run server
 const { WebSocketServer } = require('ws');
 const { randomUUID } = require('crypto');
@@ -41,6 +46,13 @@ wss.on('connection', (socket) => {
       message = JSON.parse(data.toString());
     } catch {
       return; // ignora mensagem malformada
+    }
+
+    if (message.type === 'state') {
+      for (const [otherId, otherSocket] of clients) {
+        if (otherId !== id) send(otherSocket, { ...message, from: id });
+      }
+      return;
     }
 
     // Mensagens de sinalização (oferta/resposta SDP, candidatos ICE) são
