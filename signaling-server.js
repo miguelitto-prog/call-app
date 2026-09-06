@@ -17,6 +17,8 @@
 const { WebSocketServer } = require('ws');
 const { randomUUID, randomBytes, scryptSync, timingSafeEqual } = require('crypto');
 const path = require('path');
+const fs = require('fs');
+const http = require('http');
 const { DatabaseSync } = require('node:sqlite');
 
 const PORT = process.env.PORT || 8080;
@@ -75,7 +77,41 @@ function listChannels() {
 // aviso lá em cima) — mais simples que gerenciar expiração/refresh agora.
 const sessions = new Map();
 
-const wss = new WebSocketServer({ port: PORT });
+// ---- Servidor HTTP: entrega o index.html, style.css, renderer.js etc. ----
+// Antes o servidor só entendia WebSocket, então abrir o link no navegador não
+// mostrava nada. Agora as duas coisas (site + WebSocket) vivem na mesma porta.
+const PUBLIC_DIR = __dirname;
+const MIME_TYPES = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.ico': 'image/x-icon',
+};
+
+const httpServer = http.createServer((req, res) => {
+  const urlPath = req.url.split('?')[0];
+  const safePath = path.normalize(urlPath === '/' ? '/index.html' : urlPath).replace(/^(\.\.[/\\])+/, '');
+  const filePath = path.join(PUBLIC_DIR, safePath);
+
+  // Não deixa escapar da pasta pública, por segurança.
+  if (!filePath.startsWith(PUBLIC_DIR)) {
+    res.writeHead(403);
+    return res.end('Proibido');
+  }
+
+  fs.readFile(filePath, (err, content) => {
+    if (err) {
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+      return res.end('Página não encontrada');
+    }
+    res.writeHead(200, { 'Content-Type': MIME_TYPES[path.extname(filePath)] || 'application/octet-stream' });
+    res.end(content);
+  });
+});
+
+const wss = new WebSocketServer({ server: httpServer });
 const clients = new Map(); // connectionId -> { socket, userId, username, voiceChannelId }
 
 function send(socket, message) {
@@ -256,5 +292,7 @@ wss.on('connection', (socket) => {
   });
 });
 
-console.log(`Servidor do Sinal rodando em ws://localhost:${PORT}`);
-console.log(`Banco de dados: ${DB_PATH}`);
+httpServer.listen(PORT, () => {
+  console.log(`Servidor do Sinal (site + WebSocket) rodando em http://localhost:${PORT}`);
+  console.log(`Banco de dados: ${DB_PATH}`);
+});
